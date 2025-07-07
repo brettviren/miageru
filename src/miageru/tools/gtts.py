@@ -1,5 +1,4 @@
 from .base import BaseShCommand, find_path
-import asyncio
 
 # defaults but can override at call time
 default_config = dict(
@@ -20,9 +19,10 @@ class Command(BaseShCommand):
         self._slow = slow
         self._cmd = gTTS
         self._status = f'google text-to-speech available'
+
     def __call__(self, text, mp3file, *args, lang=None, slow=None, **kwds):
         '''
-        Call Google Translate text, return translation.
+        Call Google text-to-speech to make mp3 file.
         '''
         if lang is None:
             lang = self._lang

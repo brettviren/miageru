@@ -72,3 +72,10 @@ class Command(BaseShCommand):
         return wavfile
 
 
+    def tts(self, text, *args, **kwds):
+        import tempfile
+        fp = tempfile.NamedTemporaryFile(suffix=".wav")
+        fp.close()
+        self(text, fp.name)
+        return fp.name
+

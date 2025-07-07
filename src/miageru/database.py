@@ -2,6 +2,17 @@ import sqlite3
 from dataclasses import dataclass
 from typing import Optional, List
 
+
+
+# class Context:
+#     def __init__(self, dbfile):
+#         self.dbfile = dbfile
+#     def connect(self):
+#         return open_db(self.dbfile)
+#     def find_term(self, term, service=None):
+#         pass
+
+
 @dataclass
 class Term:
     """

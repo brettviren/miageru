@@ -6,17 +6,9 @@
 
 import click
 from pathlib import Path
+from miageru.methods import Methods
 
-from miageru.database import open_db
-
-class Context:
-    def __init__(self, dbfile):
-        self.dbfile = dbfile
-
-    def connect(self):
-        return open_db(self.dbfile)
-
-    def find_term(self, term, service=None):
+# todo: dump config
 
 
 @click.group()
@@ -26,23 +18,34 @@ def cli(ctx, db):
     '''
     Look up and process terms.
     '''
-    ctx.obj = Context(db)
+    ctx.obj = None # Context(db)
+    # todo: load config
 
 
 @cli.command("say")
-@click.option("-s","--service", click.Choice("jtalk", "google", "espeak-ng"),
-              help="What service to use to say the term.")
 @click.option("-o","--output", default=None, type=str,
               help="How to output result, default will play else write file")
-@click.option("-f","--force", is_flag=True, default=False,
-              help="Force to use service and rewrite term entry")
 @click.argument("term", nargs=-1)
 @click.pass_context
-def cli_say(ctx, service, output, term):
+def cli_say(ctx, output, term):
     '''
     Say a term.
     '''
-    term = ctx.obj.get_term(' '.join(term), service)
+    cfg = {}                    # fixme, get this from context
+    m = Methods(cfg)
+
+    # fixme: make a class that is configured to pick services the user prefers
+    # and presents all methods. for now, just get something working
+    tmpfile = m.tts(term)
+    if not output:
+        m.play(tmpfile)
+
+    else:
+        # fixme: do conversion if needed
+        print(tmpfile)
+        
+
+
 
 if __name__ == '__main__':
     cli()
