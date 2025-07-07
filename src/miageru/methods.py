@@ -41,9 +41,9 @@ class Command with:
 
 import pkgutil
 from . import tools
-
 def known_tools():
     #= [n for _, n, _ in pkgutil.iter_modules(tools.__path__)]
+
     submodule_names = list()
     for loader, module_name, is_pkg in pkgutil.iter_modules(tools.__path__):
         if is_pkg:

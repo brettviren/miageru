@@ -1,0 +1,33 @@
+#+title: 見上げる. 
+
+Bad pun.
+
+Work in progress.
+
+* Purpose
+
+Consolidate a bunch of organic scripts for looking up and processing Japanese terms.
+
+Do this in a way that is flexible to the user environment including what, if any, remote services may be used.
+
+* Architecture
+
+miegeru is comprised of three layers
+
+- commands :: ~miageru <command>~ command line interface
+- methods :: each command aggregates some methods do do some task
+- tools :: objects wrapping a dependency providing one or more methods
+
+Multiple tools may provide the same method.  For example, the ~gtts~ tool provides
+access to Google text-to-speech service and the ~tts~ method.  The ~jtalk~ tool also
+provides the ~tts~ method by running the local ~open_jtalk~ program (possibly with
+voices provided by miageru).
+
+This abstraction allows users, via the miageru configuration file, to register
+their preference for certain tools as well as provide tool-specific
+configuration.  The ~miageru~ package can be installed with a minimal or maximal
+set of dependencies.  The structure also allows the ~miageru~ command line program
+to start relatively quickly (for Python) as it avoids the cost of importing
+modules it does not use (minimal ~python~: 15ms, ~miageru~ with no arguments: 50 ms).  The ~miageru.methods.Method~ class provides a simple
+interface to resolve methods via the user configuration and hide the complexity
+that comes with this flexibility.
