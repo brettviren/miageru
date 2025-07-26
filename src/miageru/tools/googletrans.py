@@ -46,3 +46,9 @@ class Command(BaseCommand):
         '''
         return self._cmd(text)
 
+
+    def translate(self, text):
+        '''
+        The translate method returns just the translation of text.
+        '''
+        return self._cmd(text)

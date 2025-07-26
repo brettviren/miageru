@@ -1,4 +1,4 @@
-from .base import BaseCommand, find_path
+from .base import BaseCommand
 
 
 default_config = dict()

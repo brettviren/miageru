@@ -9,7 +9,7 @@ class Command(BaseShCommand):
         '''
         super().__init__("yad")
 
-    def dialog(self, text, title="", size=(500,400), buttons={}):
+    def dialog(self, text, title="", size=(1000,500), buttons={}):
         '''
         Run a dialog.
 
@@ -34,7 +34,6 @@ class Command(BaseShCommand):
                 continue
             args += ['--button', f'{label}:echo {label}']
         
-        print(self._cmd, str(self._cmd))
         try:
             self._cmd(*args, _out=callback, _in=text)
         except ErrorReturnCode as err:

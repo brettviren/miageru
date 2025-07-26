@@ -1,3 +1,4 @@
+from pathlib import Path
 from .base import BaseCommand, find_path
 
 # defaults but can override at call time
@@ -33,5 +34,11 @@ class Command(BaseCommand):
         tts_file.save(mp3file)
         return mp3file
         
+    def tts(self, text, *args, **kwds):
+        import tempfile
+        fp = tempfile.NamedTemporaryFile(suffix=".wav")
+        fp.close()
+        self(text, fp.name)
+        return Path(fp.name)
 
 

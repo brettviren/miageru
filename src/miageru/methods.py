@@ -60,7 +60,7 @@ def get_class(name):
     mod = importlib.import_module(f".tools.{name}", package=__package__)
     return mod.Command
 
-def get_command(name, cfg):
+def get_command(name, **cfg):
     Command = get_class(name)
     return Command(**cfg)
 
@@ -68,11 +68,11 @@ def get_method(meth, tool, cfg={}):
     obj = get_command(tool, **cfg)
     return getattr(obj, meth)
 
-def find_method(meth, cfg={}, tool=None):
-    if tool:
-        return get_method(meth, tool, cfg)
+def find_method(meth, cfg={}, tools_list=None):
+    if not tools_list:
+        tools_list = known_tools()
 
-    for name in known_tools():
+    for name in tools_list:
         Command = get_class(name)
         if hasattr(Command, meth):
             return getattr(Command(**cfg), meth)
@@ -88,13 +88,20 @@ class Methods:
         # fixme: use cfg to mitigate method lookup
         # for now, wing it
 
-    def _prefered_tool(self, name):
+    def _preferred_tools(self, name):
         # fixme: dig into cfg to see if user has a preferred tool for method
-        return None
+        pfs = self._cfg.get("tools", None)
+        if not pfs:
+            return None
+        tools = pfs.get(name, None)
+        if isinstance(tools, str):
+            tools = [tools]
+        return tools
 
     def __getattr__(self, name):
         
-        return find_method(name, self._cfg, self._prefered_tool(name))
+        meth = find_method(name, self._cfg, self._preferred_tools(name))
+        return meth
 
     def transcode(self, src_file, dst_file):
         '''
@@ -104,6 +111,6 @@ class Methods:
         dst = dst_file.suffix[1:]
 
         name = f'{src}_to_{dst}'
-        tc = find_method(name, self._cfg, self._prefered_tool(name))
+        tc = find_method(name, self._cfg, self._preferred_tool(name))
         tc(src_file, dst_file)
         
