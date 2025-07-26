@@ -95,3 +95,15 @@ class Methods:
     def __getattr__(self, name):
         
         return find_method(name, self._cfg, self._prefered_tool(name))
+
+    def transcode(self, src_file, dst_file):
+        '''
+        Transcode one audio file to another by matching by extensions.
+        '''
+        src = src_file.suffix[1:]
+        dst = dst_file.suffix[1:]
+
+        name = f'{src}_to_{dst}'
+        tc = find_method(name, self._cfg, self._prefered_tool(name))
+        tc(src_file, dst_file)
+        

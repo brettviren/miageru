@@ -11,18 +11,9 @@ default_config = dict(
 class Command(BaseShCommand):
     def __init__(self, db=None, host=None, port=None, **kwds):
         '''
-        A dictd client command
+        oggenc
         '''
-        super().__init__()
-
-        try:
-            self._cmd = ShCommand("dict")
-        except CommandNotFound:
-            self._status = "No 'dict' command found, install the 'dict' package"
-            return
-        except Exception as e:
-            self._status = f"Unexpected error for 'dict': {e}"
-            return
+        super().__init__("dict")
 
         opts = []
         if host:

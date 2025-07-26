@@ -1,3 +1,5 @@
+from sh import Command as ShCommand, CommandNotFound, ErrorReturnCode
+
 from pathlib import Path
 def find_path(filename, paths = (), default=None):
     '''
@@ -14,13 +16,7 @@ def find_path(filename, paths = (), default=None):
             return p
     return default
 
-class BaseShCommand:
-    '''
-    Boilerplate mixin for sh using Command
-    '''
-    def __init__(self):
-        self._cmd = None
-        self._status = None
+class BaseCommand:
 
     def __bool__(self):
         return self._cmd is not None
@@ -32,4 +28,20 @@ class BaseShCommand:
         if not self:
             raise RuntimeError(f"Can not call {self}.  Status:\n{self}")
         return self._cmd(args, **kwds)
-    
+
+
+
+class BaseShCommand(BaseCommand):
+    def __init__(self, program):
+        self._cmd = None
+        self._status = None
+
+        try:
+            self._cmd = ShCommand(program)
+        except CommandNotFound:
+            self._status = f'No "{program}" command found'
+            return
+        except Exception as e:
+            self._status = f'Unexpected error for "{program}": {e}'
+            return
+

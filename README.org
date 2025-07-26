@@ -31,3 +31,10 @@ to start relatively quickly (for Python) as it avoids the cost of importing
 modules it does not use (minimal ~python~: 15ms, ~miageru~ with no arguments: 50 ms).  The ~miageru.methods.Method~ class provides a simple
 interface to resolve methods via the user configuration and hide the complexity
 that comes with this flexibility.
+
+* TODO
+
+- [ ] a ~read~ command giving the kanji to hiragana text 
+- [ ] introduce ability to show window of text (zenity and kitty tools)
+- [ ] introduce anki card generation and sending to anki-connect
+- [ ] ...

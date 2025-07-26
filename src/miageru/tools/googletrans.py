@@ -1,4 +1,4 @@
-from .base import BaseShCommand, find_path
+from .base import BaseCommand, find_path
 import asyncio
 
 default_config = dict(
@@ -28,7 +28,7 @@ def translator_function(Translator, urls = None):
 
     return translate_sync
 
-class Command(BaseShCommand):
+class Command(BaseCommand):
     def __init__(self, urls=None, **kwds):
         super().__init__()
 

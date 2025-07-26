@@ -1,10 +1,10 @@
-from .base import BaseShCommand, find_path
+from .base import BaseCommand, find_path
 
 default_config = dict(
     primary = True
 )
 
-class Command(BaseShCommand):
+class Command(BaseCommand):
     def __init__(self, primary=True, **kwds):
         super().__init__()
 

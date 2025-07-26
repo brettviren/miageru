@@ -1,6 +1,5 @@
-from sh import Command as ShCommand, CommandNotFound
-
 from importlib import resources
+from pathlib import Path
 from .base import BaseShCommand, find_path
 
 default_config = dict(
@@ -22,16 +21,7 @@ class Command(BaseShCommand):
         '''
         An Open JTalk command
         '''
-        super().__init__()
-
-        try:
-            self._cmd = ShCommand("open_jtalk") # does it need to be configurable?
-        except CommandNotFound:
-            self._status = "No 'open_jtalk' command found, install 'open-jtalk' package"
-            return
-        except Exception as e:
-            self._status = f"Unexpected error for 'open_jtalk': {e}"
-            return
+        super().__init__("open_jtalk")
 
         # get just version info not CLI help
         lines = list()
@@ -77,5 +67,5 @@ class Command(BaseShCommand):
         fp = tempfile.NamedTemporaryFile(suffix=".wav")
         fp.close()
         self(text, fp.name)
-        return fp.name
+        return Path(fp.name)
 

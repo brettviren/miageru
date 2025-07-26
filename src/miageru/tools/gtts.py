@@ -1,4 +1,4 @@
-from .base import BaseShCommand, find_path
+from .base import BaseCommand, find_path
 
 # defaults but can override at call time
 default_config = dict(
@@ -6,7 +6,7 @@ default_config = dict(
     slow=False
 )
 
-class Command(BaseShCommand):
+class Command(BaseCommand):
     def __init__(self, lang='ja', slow=False, **kwds):
         super().__init__()
 
