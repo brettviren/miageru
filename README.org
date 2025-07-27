@@ -35,7 +35,8 @@ hide the complexity that comes with this flexibility.
 
 * TODO
 
-- [ ] a ~read~ command giving the kanji to hiragana text 
-- [ ] introduce ability to show window of text (zenity and kitty tools)
+- [ ] yad ui to show dict text with ~[say (jtalk)] [say (gtts)]~ buttons
+- [X] a ~read~ command giving the kanji to hiragana text 
+- [X] introduce ability to show window of text ++(zenity and kitty tools)++ used yad
 - [ ] introduce anki card generation and sending to anki-connect
 - [ ] ...

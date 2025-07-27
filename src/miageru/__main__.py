@@ -76,6 +76,58 @@ def cli_read(ctx, output, terms):
         return
     Path(output).write_text(reading)
 
+@cli.command("split")
+@click.option("-o","--output", default=None, type=Path,
+              help="Output to file, else stdout")
+@click.argument("terms", nargs=-1)
+@click.pass_context
+def cli_split(ctx, output, terms):
+    '''
+    Split a phrase into words.
+    '''
+    m = ctx.obj
+
+    words = ' '.join(m.split(' '.join(terms)))    
+    if not output:
+        print(words)
+        return
+    Path(output).write_text(words)
+
+@cli.command("furigana")
+@click.option("-o","--output", default=None, type=Path,
+              help="Output to file, else stdout")
+@click.argument("terms", nargs=-1)
+@click.pass_context
+def cli_furigana(ctx, output, terms):
+    '''
+    Split a phrase into words and append furigana to kanji.
+    '''
+    m = ctx.obj
+
+    words = m.split(' '.join(terms))
+    furi = ' '.join(m.furigana(words))
+    if not output:
+        print(furi)
+        return
+    Path(output).write_text(furi)
+
+
+# fixme: make a generic command to run an arbitrary tool comand.
+# @cli.command("kakasi")
+# @click.option("-o","--output", default=None, type=Path,
+#               help="Output to file, else stdout")
+# @click.argument("terms", nargs=-1)
+# @click.pass_context
+# def cli_kakasi(ctx, output, terms):
+#     '''
+#     Run kakasi
+#     '''
+#     m = ctx.obj
+
+#     got = m.kakasi(terms)
+#     print(got)
+
+
 
 @cli.command("dictionary")
 @click.argument("terms", nargs=-1)
