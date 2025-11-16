@@ -149,7 +149,7 @@ class Methods:
             if not hasattr(mod.Command, method_name):
                 continue
             cfg = self._cfg_tool.get(tool_name, {})
-            return mod.Command(**cfg)
+            return getattr(mod.Command(**cfg), method_name)
         return default
             
 

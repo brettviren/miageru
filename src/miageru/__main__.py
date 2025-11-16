@@ -190,6 +190,7 @@ def cli_ui(ctx, terms):
     text = ' '.join(terms)
     definition = m.dictionary(text)
     reading = m.read(text)
+    print(f'{m.tts=}')
     saying = m.tts(text)
     m.play(saying)
 
