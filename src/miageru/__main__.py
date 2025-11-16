@@ -4,31 +4,49 @@
 # dependencies = ["click"]
 # ///
 
-import click
+import os
+import sys
 import shutil
 from pathlib import Path
-from collections import defaultdict
+from tomllib import TOMLDecodeError
+from tomllib import loads as toml_loads
+
+import click
+
 from miageru.methods import Methods
 
 # todo: dump config
 
+def config_home():
+    '''
+    Return the default configuration home
+    '''
+    try:
+        return Path(os.environ['XDG_CONFIG_HOME'])
+    except KeyError:
+        return Path.home() / ".config"
+default_config_filename = config_home() / "miageru" / "config.toml"    
 
 @click.group()
 @click.option("--db", default=Path.home() / "miageru.db")
-@click.option("-t","--tools", default=None, type=str, multiple=True,
-              help="Override config to set preferred tools with meth=tool arg")
+@click.option("-c","--config",
+              default=default_config_filename,
+              help="Give configuration file")
+@click.option("-t", "--tools", multiple=True,
+              help="Limit list of tools to consider")
 @click.pass_context
-def cli(ctx, db, tools):
+def cli(ctx, db, config, tools):
     '''
     Look up and process terms.
-    '''
-    tools_cfg = defaultdict(list)
-    for tool in tools:
-        for more in tool.split(","):
-            m,t = more.split("=")
-            tools_cfg[m].append(t)
 
-    ctx.obj = Methods(dict(tools=tools_cfg))
+    Config is toml with each section defining a tool's config.
+    '''
+    try:
+        cfg = toml_loads(open(config).read())
+    except TOMLDecodeError as e:
+        click.echo(f"Error parsing TOML configuration: {e}", err=True)        
+
+    ctx.obj = Methods(cfg=cfg, tools=tools)
 
     # Context(db)
     # todo: load config
@@ -134,7 +152,7 @@ def cli_furigana(ctx, output, terms):
 @click.pass_context
 def cli_dictionary(ctx, terms):
     '''
-    Show the dictionary lookup of the terms.
+    Call a dictionary tool to lookup terms.
     '''
     m = ctx.obj
 

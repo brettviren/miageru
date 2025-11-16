@@ -15,28 +15,34 @@ Do this in a way that is flexible to the user environment including what, if any
 miegeru is comprised of three layers
 
 - commands :: ~miageru <command>~ command line interface
-- methods :: each command aggregates some methods do do some task
-- tools :: objects wrapping a dependency providing one or more methods
+- methods :: an set of named operations
+- tools :: a supplier of one or more methods
 
-Multiple tools may provide the same method.  For example, the ~gtts~ tool provides
-access to Google text-to-speech service and the ~tts~ method.  The ~jtalk~ tool also
-provides the ~tts~ method by running the local ~open_jtalk~ program (possibly with
-voices provided by miageru).
+A tool object is a named, configured instance of a class in the =miageru.tools=
+namespace.  A tool class provides one or more methods as class functions.  Every
+tool class has a tool instance named by its Python module.  Variant tool
+instances are defined by the configuration file.
 
-This abstraction allows users (or will when it's all working), via the miageru
-configuration file and command line, to register their preference for certain
-tools as well as provide tool-specific configuration.  The ~miageru~ package can
-be installed with a minimal or maximal set of dependencies.  The structure also
-allows the ~miageru~ command line program to start relatively quickly (for Python)
-as it avoids the cost of importing modules it does not use (minimal ~python~:
-15ms, ~miageru~ with no arguments: 50 ms).  The ~miageru.methods.Method~ class
-provides a simple interface to resolve methods via the user configuration and
-hide the complexity that comes with this flexibility.
+Multiple tools classes may provide the same method.  For example, the ~gtts~ tool
+provides access to Google text-to-speech service by providing the ~tts~ method.
+The ~jtalk~ tool also provides the ~tts~ method by running the local ~open_jtalk~
+program (possibly with voices provided by miageru).
+
+The motivation for this abstraction is to allow operations to be defined with a
+common CLI and API while allowing flexibility in how the user may satisfy
+dependencies.  
+
+A side-effect of this structuring is that the ~miageru~ command line program can
+load relatively quickly (for Python) as it avoids the cost of importing modules
+it does not use (minimal ~python~: 15ms, ~miageru~ with no arguments: 50 ms).  The
+~miageru.methods.Method~ class provides a simple interface to resolve methods via
+the user configuration and hide the complexity that comes with this flexibility.
 
 * TODO
 
 - [ ] yad ui to show dict text with ~[say (jtalk)] [say (gtts)]~ buttons
 - [X] a ~read~ command giving the kanji to hiragana text 
 - [X] introduce ability to show window of text ++(zenity and kitty tools)++ used yad
+- [X] configuration
 - [ ] introduce anki card generation and sending to anki-connect
 - [ ] ...

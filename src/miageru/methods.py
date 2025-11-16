@@ -41,6 +41,8 @@ class Command with:
 
 import pkgutil
 from . import tools
+import importlib
+
 def known_tools():
     #= [n for _, n, _ in pkgutil.iter_modules(tools.__path__)]
 
@@ -53,7 +55,16 @@ def known_tools():
             submodule_names.append(module_name)
     return submodule_names
 
-import importlib
+def known_tool_names():
+    for loader, module_name, is_pkg in pkgutil.iter_modules(tools.__path__):
+        if is_pkg:
+            continue
+        module = importlib.import_module(f'miageru.tools.{module_name}')
+        if hasattr(module, 'Command'):
+            yield module_name
+
+def with_method(tool_list, method_name):
+    return [t for t in tool_list if hasattr(t, method_name)]
 
 def get_class(name):
     #mod = import_module(name, miageru.tools)
@@ -68,39 +79,102 @@ def get_method(meth, tool, cfg={}):
     obj = get_command(tool, **cfg)
     return getattr(obj, meth)
 
-def find_method(meth, cfg={}, tools_list=None):
-    if not tools_list:
-        tools_list = known_tools()
 
-    for name in tools_list:
-        Command = get_class(name)
-        if hasattr(Command, meth):
-            return getattr(Command(**cfg), meth)
-    raise RuntimeError(f'no method {meth} available')
+def get_tool_module(module_name, default=None):
+    '''
+    Return tool module.
+    '''
+    # First try as on of our tool modules
+    try:
+        return importlib.import_module(f'miageru.tools.{module_name}')
+    except ModuleNotFoundError:
+        pass
+
+    # Next, try as a stand-alone
+    try:
+        return importlib.import_module(module_name)
+    except ModuleNotFoundError:
+        pass
+                
+    return default
 
 class Methods:
     '''
     Map user configuration to tools to use for methods.
+
+    The config maps a tool instance name to its config, and possibly the module
+    providing the tool class.
+
+    The tools list, if given, limits the tools to be considered.
     '''
 
-    def __init__(self, cfg = {}):
-        self._cfg = cfg
-        # fixme: use cfg to mitigate method lookup
-        # for now, wing it
+    def __init__(self, cfg=None, tools=None):
+        cfg = cfg or {}
 
-    def _preferred_tools(self, name):
-        # fixme: dig into cfg to see if user has a preferred tool for method
-        pfs = self._cfg.get("tools", None)
-        if not pfs:
-            return None
-        tools = pfs.get(name, None)
-        if isinstance(tools, str):
-            tools = [tools]
-        return tools
+        self._cfg_method = cfg.get("method", {})
+        self._cfg_tool = cfg.get("tool", {})
+        self._allowed_tools = tools
 
-    def __getattr__(self, name):
+        # cache
+        self._methods = dict()
+        self._tool_modules = None
+
+    def _allowed(self, tool_name):
+        return not self._allowed_tools or tool_name in self._allowed_tools
+
+    def iter_tools(self, lst = None):
+        def iter_all():
+            if lst is not None:
+                for one in lst:
+                    yield one
+            for one in self._cfg_tool.keys():
+                yield one
+            if self._tool_modules is None:
+                self._tool_modules = list(known_tool_names())
+            for one in self._tool_modules:
+                yield one
+        for one in iter_all():
+            if self._allowed(one):
+                yield one
+
+    def _first_method_with(self, method_name, user_tool_list=None, default=None):
+        for tool_name in self.iter_tools(user_tool_list):
+            tool_cfg = self._cfg_tool.get(tool_name, {})
+            module_name = tool_cfg.get("module", tool_name)
+            mod = get_tool_module(module_name)
+            if mod is None:
+                continue
+            if not hasattr(mod, 'Command'):
+                continue
+            if not hasattr(mod.Command, method_name):
+                continue
+            cfg = self._cfg_tool.get(tool_name, {})
+            return mod.Command(**cfg)
+        return default
+            
+
+    def get(self, method_name, default=None):
+        '''
+        Return a method of the name subject to selection rules.
+        '''
+        # first check if we've been here before
+        tool = self._methods.get(method_name, None)
+        if tool is not None:
+            return tool
+
+        # Resolve method name given tool ordering
+        method_tool_list = self._cfg_method.get(method_name, {}).get("tools", None)
+        meth = self._first_method_with(method_name, method_tool_list)
+        if meth is None:
+            return default
         
-        meth = find_method(name, self._cfg, self._preferred_tools(name))
+        self._methods[method_name] = meth
+        return meth
+
+    def __getattr__(self, method_name):
+        meth = self.get(method_name)
+        if meth is None:
+            raise KeyError(f'no method "{method_name}"')
         return meth
 
     def transcode(self, src_file, dst_file):
@@ -111,6 +185,6 @@ class Methods:
         dst = dst_file.suffix[1:]
 
         name = f'{src}_to_{dst}'
-        tc = find_method(name, self._cfg, self._preferred_tool(name))
+        tc = find_method(name, self._cfg_tool, self._preferred_tool(name))
         tc(src_file, dst_file)
         

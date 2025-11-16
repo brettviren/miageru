@@ -9,7 +9,7 @@ class Command(BaseShCommand):
         '''
         super().__init__("yad")
 
-    def dialog(self, text, title="", size=(1000,500), buttons={}):
+    def dialog(self, text, title="", size=(1500,500), buttons={}):
         '''
         Run a dialog.
 

@@ -1,0 +1,63 @@
+# miageru config.
+#
+# It has the following sections.
+#
+# The first section governs tools
+#
+# [tool.<toolname>]
+#
+# Name a tool instance and provide configuration.  These attributes are special:
+#
+# tool.<toolname>.module
+#
+# Optional name of the Python module providing the tool class.  If not given,
+# the <toolname> will be assumed.
+#
+# tool.<toolname>.methods
+#
+# Optional name one or more names of methods the tool should be considered to
+# supply.  This list serves as a redution to potentially exclude other methods
+# provided by the tool class.  That is, the set of methods considered will be
+# the intersection of this list and what the tool provides.
+#
+#
+# The next section governs methods:
+#
+# [method.<methodname>]
+#
+# Provide information for a specific method.  These attributes are special:
+#
+# method.tools
+#
+# Optional ordered list of preferred tools to provide this method.
+#
+#
+# Rules of preference for a given method, first one wins:
+#
+# 1. First tool providing method in method.<methodname>.tools list.
+# 2. First tool in tool.<toolname> subject to tool.<toolname>.methods
+# 3. First tool in miageru.tools.<module> that provides it.
+
+
+
+[tool.dict_gcide]
+module = "dictc"
+prog = "dict"
+host = "localhost"
+db = "gcide"
+
+[tool.dict_j2e]
+module = "dictc"
+prog = "dict"                   # 'dico' also supported
+host = "localhost"
+db = "fd-jpn-eng"
+
+[tool.dict_e2j]
+module = "dictc"
+prog = "dict"
+host = "localhost"
+db = "fd-eng-jpn"
+
+
+# [method.dictionary]
+# tools = ["dico", "dict"]

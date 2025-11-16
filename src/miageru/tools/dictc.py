@@ -1,6 +1,7 @@
 from .base import BaseShCommand
 
 default_config = dict(
+    prog="dict",
     host=None,
     port=None,
     db="fd-jpn-eng",  # limit to a single db
@@ -37,11 +38,16 @@ def fix_weird_text(text):
 
 
 class Command(BaseShCommand):
-    def __init__(self, db=None, host=None, port=None, **kwds):
+    def __init__(self, db=None, prog="dict", host=None, port=None, **kwds):
         '''
         lookup terms using a dictd client 
         '''
-        super().__init__("dict")
+        super().__init__(prog)
+
+        version = self._cmd('--version', _ok_code=[0,1])
+        version = version.split("\n")[0]
+
+        print(f'DICT: {prog=} {db=} {host=} {version=}')
 
         opts = []
         if host:
@@ -54,14 +60,7 @@ class Command(BaseShCommand):
         if opts:
             self._cmd = self._cmd.bake(opts)
 
-        dblist = self._cmd('--dbs') # note, --database doesn't limit this
-        if db and db not in dblist:
-            self._status = 'Required dict database is missing: {db}'
-            self._cmd = None
-            return
-
-        version = self._cmd('--version', _ok_code=1)
-        self._status = f'{self._cmd}\n{version}\n{dblist}'
+        self._status = f'{self._cmd}\n{version}'
 
     def dictionary(self, term):
         '''
