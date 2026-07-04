@@ -1,7 +1,7 @@
 [project]
 name = "miageru"
 version = "0.1.0"
-description = "Add your description here"
+description = "見上げる. (bad pun)"
 readme = {file = "README.org", content-type = "text/org"}
 authors = [
     { name = "Brett Viren", email = "brett.viren@gmail.com" }
